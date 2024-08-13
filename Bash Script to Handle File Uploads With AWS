@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Usage function
+usage() {
+    echo "Usage: $0 <bucket-name> <file-path> [optional: <s3-key>]"
+    exit 1
+}
+
+# Check arguments
+if [ "$#" -lt 2 ]; then
+    usage
+fi
+
+BUCKET_NAME=$1
+FILE_PATH=$2
+S3_KEY=${3:-$(basename "$FILE_PATH")}
+
+# Check if the file exists
+if [ ! -f "$FILE_PATH" ]; then
+    echo "Error: File '$FILE_PATH' does not exist."
+    exit 1
+fi
+
+# Upload the file to S3
+echo "Uploading '$FILE_PATH' to s3://$BUCKET_NAME/$S3_KEY"
+aws s3 cp "$FILE_PATH" "s3://$BUCKET_NAME/$S3_KEY"
+
+if [ $? -eq 0 ]; then
+    echo "File successfully uploaded to s3://$BUCKET_NAME/$S3_KEY"
+else
+    echo "Error: Upload failed."
+    exit 1
+fi
